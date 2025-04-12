@@ -1,4 +1,5 @@
 *.pyc
-
 .idea/
-
+.temp/
+.env
+temp.py
