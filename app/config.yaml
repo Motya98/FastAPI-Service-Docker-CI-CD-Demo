@@ -1,0 +1,4 @@
+parser: "Demo"
+logical_cores: 100
+relative_data_path: 'data/data.csv'
+target_variables: []

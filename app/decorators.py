@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 import logging
 from functools import wraps
 
@@ -24,7 +25,7 @@ def create_logger():
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    file_handler = logging.FileHandler("logs/app.log", encoding='utf-8')
+    file_handler = logging.FileHandler(Path(__file__).parent / 'logs/app.log', encoding='utf-8')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger

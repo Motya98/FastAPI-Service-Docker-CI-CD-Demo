@@ -4,5 +4,5 @@ pandas
 numpy
 scipy
 pydantic
-selenium
+statsmodels
 uvicorn[standard]

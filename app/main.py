@@ -3,11 +3,11 @@ from fastapi.responses import HTMLResponse
 
 from yaml_ import CRUDYaml
 from parameters import Parameter
-from decorators import logger_method, create_logger
+from decorators import logger_method
+from variables import logger
 
 
 app = FastAPI()
-logger = create_logger()
 
 @app.get("/")
 @logger_method(logger)
