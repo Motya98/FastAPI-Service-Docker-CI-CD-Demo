@@ -1,8 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-
 import requests
-import pandas as pd
 
 from yaml_ import CRUDYaml
 from parameters import Parameter
@@ -18,5 +15,10 @@ def read_root():
     params = Parameter(**CRUDYaml.read('config.yaml'))
     with open('data/data.csv', 'rb') as file:
         files = {'file': ('data.csv', file, 'text/csv')}
-        response = requests.post("http://file_handler:8001/file_handler", files=files)
-    return {'a': response.text}
+        model_data = requests.post(f"http://file_handler:8001/file_handler/"
+                                 f"{params.number_of_x_columns}/"
+                                 f"{params.number_of_y_columns}/"
+                                 f"{params.random_seed}/"
+                                 f"{params.test_size}/",
+                                 files=files)
+    return {'a': model_data.json()}

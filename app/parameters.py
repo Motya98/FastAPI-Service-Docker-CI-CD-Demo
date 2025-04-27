@@ -13,6 +13,10 @@ class Parameter(BaseModel):
     logical_cores: int = Field(default=1)
     relative_data_path: str = None
     target_variables: list = None
+    number_of_x_columns: int = None
+    number_of_y_columns: int = None
+    random_seed: int = Field(default=42)
+    test_size: float = Field(default=0.2)
 
     @field_validator('logical_cores')
     @logger_method(logger)
