@@ -17,6 +17,8 @@ class Parameter(BaseModel):
     number_of_y_columns: int = None
     random_seed: int = Field(default=42)
     test_size: float = Field(default=0.2)
+    lower_quantile: float = Field(default=0.25)
+    upper_quantile: float = Field(default=0.75)
 
     @field_validator('logical_cores')
     @logger_method(logger)

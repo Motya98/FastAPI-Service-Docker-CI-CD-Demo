@@ -19,6 +19,9 @@ def read_root():
                                  f"{params.number_of_x_columns}/"
                                  f"{params.number_of_y_columns}/"
                                  f"{params.random_seed}/"
-                                 f"{params.test_size}/",
+                                 f"{params.test_size}/"
+                                 f"{params.logical_cores}/"
+                                 f"{params.lower_quantile}/"
+                                 f"{params.upper_quantile}/",
                                  files=files)
     return {'a': model_data.json()}
