@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 from fastapi import FastAPI
 import requests
@@ -12,17 +14,19 @@ app = FastAPI()
 
 @app.get("/")
 @logger_method(logger)
-def read_root() -> dict:
+def read_root() -> dict[Any, Any]:
     """Метод управляет контейнером очистки и подготовки данных для обучения;
        метод управляет контейнером поиска лучших гиперпараметров моделей sklearn;
        метод управляет контейнером выбора наиболее точной прогнозной модели.
        """
     pod_prepared_data = Pods.call_pod_prepared_data()   # Запуск первого контейнера.
-    return {'y_test': pod_prepared_data['y_test'].to_dict('records')}
+    pod_predicted_data = Pods.call_pod_predicted_data(pod_prepared_data)    # Запуск второго контейнера.
+    return {'X_train': pod_predicted_data['X_train'], 'y_test': pod_prepared_data['y_test']}
+
 
 class Pods:
     @staticmethod
-    def call_pod_prepared_data() -> dict[str, pd.DataFrame]:
+    def call_pod_prepared_data() -> dict[str, list[dict[str, Any]]]:
         """Контейнер выполняет очистку и подготовку данных для обучения.
                 Returns: dict[str, pd.DataFrame] - X_train, X_test, y_train, y_test"""
         params = Parameter(**CRUDYaml.read('config.yaml'))
@@ -41,6 +45,14 @@ class Pods:
                                        files=files
                                        )
         result_model_data = model_data.json()
-        X_train, X_test = pd.DataFrame(result_model_data['X_train']), pd.DataFrame(result_model_data['X_test'])
-        y_train, y_test = pd.DataFrame(result_model_data['y_train']), pd.DataFrame(result_model_data['y_test'])
+        X_train, X_test = result_model_data['X_train'], result_model_data['X_test']
+        y_train, y_test = result_model_data['y_train'], result_model_data['y_test']
         return {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
+
+    @staticmethod
+    def call_pod_predicted_data(pod_prepared_data):
+        model_data = requests.post(
+                               f"http://predicted_data:8002/file_handler/",
+                                   json=pod_prepared_data
+                                   )
+        return model_data.json()

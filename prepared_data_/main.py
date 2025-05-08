@@ -1,10 +1,10 @@
 import abstract
+from typing import Any
 
 from fastapi import FastAPI, File, UploadFile
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 import pandas as pd
-import pydantic
 
 from decorators import logger_method
 from variables import logger
@@ -32,7 +32,7 @@ def prepare_data(
                  upper_quantile: float,
                  degree: int,
                  file: UploadFile = File(...)
-                 ) -> dict:
+                 ) -> dict[str, list[dict[Any, Any]]]:
 
     prepared_data = PreparedData(
                                  file,
@@ -58,6 +58,8 @@ def prepare_data(
 
 
 class PreparedData(abstract.Structure):
+    """Методы класса подготавливают данные (очистка -> разбиение -> полиномизация -> стандартизация)
+       для дальнейших этапов обучения."""
     @logger_method(logger)
     def __init__(self,
                  file,
