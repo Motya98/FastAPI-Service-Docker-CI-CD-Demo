@@ -7,7 +7,7 @@ class Structure(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def polyniminal_model(self):
+    def polynomial_model(self):
         pass
 
     @abc.abstractmethod

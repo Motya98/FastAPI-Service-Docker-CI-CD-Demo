@@ -2,7 +2,9 @@ import abstract
 
 from fastapi import FastAPI, File, UploadFile
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 import pandas as pd
+import pydantic
 
 from decorators import logger_method
 from variables import logger
@@ -15,20 +17,32 @@ app = FastAPI()
           '{test_size}/'
           '{logical_cores}/'
           '{lower_quantile}/'
-          '{upper_quantile}/')
+          '{upper_quantile}/'
+          '{degree}')
 @logger_method(logger)
-def upload_file(number_of_x_columns: int,
+def upload_data(number_of_x_columns: int,
                 number_of_y_columns: int,
                 random_seed: int,
                 test_size: float,
                 logical_cores: int,
                 lower_quantile: float,
                 upper_quantile: float,
-                file: UploadFile = File(...)):
-    filename = file.filename
-    prepare_data = PrepareData(file, number_of_x_columns, number_of_y_columns, random_seed, test_size, logical_cores,lower_quantile, upper_quantile)
+                degree: int,
+                file: UploadFile = File(...)) -> dict:
+
+    prepare_data = PrepareData(file,
+                               number_of_x_columns,
+                               number_of_y_columns,
+                               random_seed,
+                               test_size,
+                               logical_cores,
+                               lower_quantile,
+                               upper_quantile,
+                               degree)
     prepare_data.preprocess_data()
     temp = prepare_data.train_test_split_data()
+    prepare_data.polynomial_model()
+    prepare_data.standartization_data()
     # config_models = list()
     # with multiprocessing.Pool(logical_cores) as pool:
     #     res = pool.starmap(prepare_data.fit_model, config_models)
@@ -37,14 +51,17 @@ def upload_file(number_of_x_columns: int,
 
 class PrepareData(abstract.Structure):
     @logger_method(logger)
-    def __init__(self, file,
+    def __init__(self,
+                 file,
                  number_of_x_columns,
                  number_of_y_columns,
                  random_seed,
                  test_size,
                  logical_cores,
                  lower_quantile,
-                 upper_quantile):
+                 upper_quantile,
+                 degree):
+
         self.df = pd.read_csv(file.file)
         self.X = self.df[self.df.columns[0:number_of_x_columns]]
         self.y = self.df[self.df.columns[number_of_x_columns:number_of_y_columns]]
@@ -55,6 +72,7 @@ class PrepareData(abstract.Structure):
         self.logical_cores = logical_cores
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
+        self.degree = degree
 
     @logger_method(logger)
     def preprocess_data(self):
@@ -66,10 +84,6 @@ class PrepareData(abstract.Structure):
         self.df = self.df[(self.df[self.df.columns[-1]] > lower_bound) & (self.df[self.df.columns[-1]] < upper_bound)]
 
     @logger_method(logger)
-    def polyniminal_model(self):
-        pass
-
-    @logger_method(logger)
     def train_test_split_data(self):
         self.X_train, self.X_test, self.y_train, self.y_test \
             = train_test_split(self.X,
@@ -78,8 +92,20 @@ class PrepareData(abstract.Structure):
                                random_state=self.random_seed)
         return len(self.df)
 
+    @logger_method(logger)
+    def polynomial_model(self):
+        poly = PolynomialFeatures(degree=self.degree, include_bias=False)
+        self.X_train =  poly.fit_transform(self.X_train)
+        self.X_test = poly.transform(self.X_test)
+
+    @logger_method(logger)
     def standartization_data(self):
-        pass
+        scaler = StandardScaler()
+        self.X_train = scaler.fit_transform(self.X_train)
+        self.X_test = scaler.transform(self.X_test)
+
+        self.X_train = pd.DataFrame(self.X_train)
+        self.X_test = pd.DataFrame(self.X_test)
 
     def create_grid_model(self):
         pass

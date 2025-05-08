@@ -25,6 +25,7 @@ def read_root() -> dict:
                                  f"{params.test_size}/"
                                  f"{params.logical_cores}/"
                                  f"{params.lower_quantile}/"
-                                 f"{params.upper_quantile}/",
+                                 f"{params.upper_quantile}/"
+                                 f"{params.degree}/",
                                  files=files)
     return {'a': model_data.json()}
