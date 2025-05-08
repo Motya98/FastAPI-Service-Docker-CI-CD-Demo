@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi import FastAPI
 import requests
 
@@ -12,9 +13,10 @@ app = FastAPI()
 @app.get("/")
 @logger_method(logger)
 def read_root() -> dict:
-    """Метод отправляет в контейнеры данные для обучения ML модели
-        Returns:
-            Данные лучшей модели."""
+    """Метод управляет контейнером для очистки и подготовки данных для обучения;
+       метод управляет контейнером для поиска лучших гиперпараметров моделей sklearn;
+       метод управляет контейнером для выбора наиболее точной прогнозной модели.
+       """
     params = Parameter(**CRUDYaml.read('config.yaml'))
     with open('data/data.csv', 'rb') as file:
         files = {'file': ('data.csv', file, 'text/csv')}
@@ -28,4 +30,7 @@ def read_root() -> dict:
                                  f"{params.upper_quantile}/"
                                  f"{params.degree}/",
                                  files=files)
-    return {'a': model_data.json()}
+    result_model_data = model_data.json()
+    X_train, X_test = pd.DataFrame(result_model_data['X_train']), pd.DataFrame(result_model_data['X_test'])
+    y_train, y_test = pd.DataFrame(result_model_data['y_train']), pd.DataFrame(result_model_data['y_test'])
+    return {'y_test': y_test.to_dict('records')}

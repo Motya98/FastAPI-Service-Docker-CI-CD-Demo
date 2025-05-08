@@ -10,7 +10,8 @@ from decorators import logger_method
 from variables import logger
 
 app = FastAPI()
-@app.post('/file_handler/'
+@app.post(
+          '/file_handler/'
           '{number_of_x_columns}/'
           '{number_of_y_columns}/'
           '{random_seed}/'
@@ -18,38 +19,45 @@ app = FastAPI()
           '{logical_cores}/'
           '{lower_quantile}/'
           '{upper_quantile}/'
-          '{degree}')
+          '{degree}'
+           )
 @logger_method(logger)
-def upload_data(number_of_x_columns: int,
-                number_of_y_columns: int,
-                random_seed: int,
-                test_size: float,
-                logical_cores: int,
-                lower_quantile: float,
-                upper_quantile: float,
-                degree: int,
-                file: UploadFile = File(...)) -> dict:
+def prepare_data(
+                 number_of_x_columns: int,
+                 number_of_y_columns: int,
+                 random_seed: int,
+                 test_size: float,
+                 logical_cores: int,
+                 lower_quantile: float,
+                 upper_quantile: float,
+                 degree: int,
+                 file: UploadFile = File(...)
+                 ) -> dict:
 
-    prepare_data = PrepareData(file,
-                               number_of_x_columns,
-                               number_of_y_columns,
-                               random_seed,
-                               test_size,
-                               logical_cores,
-                               lower_quantile,
-                               upper_quantile,
-                               degree)
-    prepare_data.preprocess_data()
-    temp = prepare_data.train_test_split_data()
-    prepare_data.polynomial_model()
-    prepare_data.standartization_data()
-    # config_models = list()
-    # with multiprocessing.Pool(logical_cores) as pool:
-    #     res = pool.starmap(prepare_data.fit_model, config_models)
-    return {"filename": temp, 'res3': 'res'}
+    prepared_data = PreparedData(
+                                 file,
+                                 number_of_x_columns,
+                                 number_of_y_columns,
+                                 random_seed,
+                                 test_size,
+                                 logical_cores,
+                                 lower_quantile,
+                                 upper_quantile,
+                                 degree
+                                 )
+    prepared_data.preprocess_data()
+    prepared_data.train_test_split_data()
+    prepared_data.polynomial_model()
+    prepared_data.standartization_data()
+    return {
+            "X_train": prepared_data.X_train.to_dict('records'),
+            "X_test": prepared_data.X_test.to_dict('records'),
+            "y_train": prepared_data.y_train.to_dict('records'),
+            "y_test": prepared_data.y_test.to_dict('records'),
+            }
 
 
-class PrepareData(abstract.Structure):
+class PreparedData(abstract.Structure):
     @logger_method(logger)
     def __init__(self,
                  file,
@@ -64,7 +72,7 @@ class PrepareData(abstract.Structure):
 
         self.df = pd.read_csv(file.file)
         self.X = self.df[self.df.columns[0:number_of_x_columns]]
-        self.y = self.df[self.df.columns[number_of_x_columns:number_of_y_columns]]
+        self.y = self.df[self.df.columns[number_of_x_columns:number_of_x_columns + number_of_y_columns]]
         self.number_of_x_columns = number_of_x_columns
         self.number_of_y_columns = number_of_y_columns
         self.random_seed = random_seed
@@ -90,7 +98,7 @@ class PrepareData(abstract.Structure):
                                self.y,
                                test_size=self.test_size,
                                random_state=self.random_seed)
-        return len(self.df)
+        return self.df[self.df.columns[self.number_of_x_columns:self.number_of_y_columns]]
 
     @logger_method(logger)
     def polynomial_model(self):

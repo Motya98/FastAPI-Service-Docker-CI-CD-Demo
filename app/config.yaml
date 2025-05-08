@@ -2,7 +2,7 @@ parser: "Demo"
 logical_cores: 100
 relative_data_path: 'data/data.csv'
 target_variables: []
-number_of_x_columns: 13
+number_of_x_columns: 12
 number_of_y_columns: 1
 random_seed: 42
 test_size: 0.2
