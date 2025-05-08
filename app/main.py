@@ -11,7 +11,10 @@ app = FastAPI()
 
 @app.get("/")
 @logger_method(logger)
-def read_root():
+def read_root() -> dict:
+    """Метод отправляет в контейнеры данные для обучения ML модели
+        Returns:
+            Данные лучшей модели."""
     params = Parameter(**CRUDYaml.read('config.yaml'))
     with open('data/data.csv', 'rb') as file:
         files = {'file': ('data.csv', file, 'text/csv')}

@@ -1,16 +1,22 @@
-import sys
-import os
-import multiprocessing
+import abstract
 
 from fastapi import FastAPI, File, UploadFile
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-import abstract
-
+from decorators import logger_method
+from variables import logger
 
 app = FastAPI()
-@app.post('/file_handler/{number_of_x_columns}/{number_of_y_columns}/{random_seed}/{test_size}/{logical_cores}/{lower_quantile}/{upper_quantile}/')
+@app.post('/file_handler/'
+          '{number_of_x_columns}/'
+          '{number_of_y_columns}/'
+          '{random_seed}/'
+          '{test_size}/'
+          '{logical_cores}/'
+          '{lower_quantile}/'
+          '{upper_quantile}/')
+@logger_method(logger)
 def upload_file(number_of_x_columns: int,
                 number_of_y_columns: int,
                 random_seed: int,
@@ -20,16 +26,17 @@ def upload_file(number_of_x_columns: int,
                 upper_quantile: float,
                 file: UploadFile = File(...)):
     filename = file.filename
-    prepare_data  = PrepareData(file, number_of_x_columns, number_of_y_columns, random_seed, test_size, logical_cores,lower_quantile, upper_quantile)
+    prepare_data = PrepareData(file, number_of_x_columns, number_of_y_columns, random_seed, test_size, logical_cores,lower_quantile, upper_quantile)
     prepare_data.preprocess_data()
     temp = prepare_data.train_test_split_data()
     # config_models = list()
     # with multiprocessing.Pool(logical_cores) as pool:
     #     res = pool.starmap(prepare_data.fit_model, config_models)
-    return {"filename": temp, 'res': 'res'}
+    return {"filename": temp, 'res3': 'res'}
 
 
 class PrepareData(abstract.Structure):
+    @logger_method(logger)
     def __init__(self, file,
                  number_of_x_columns,
                  number_of_y_columns,
@@ -49,6 +56,7 @@ class PrepareData(abstract.Structure):
         self.lower_quantile = lower_quantile
         self.upper_quantile = upper_quantile
 
+    @logger_method(logger)
     def preprocess_data(self):
         q1 = self.df[self.df.columns[-1]].quantile(self.lower_quantile)
         q3 = self.df[self.df.columns[-1]].quantile(self.upper_quantile)
@@ -57,9 +65,11 @@ class PrepareData(abstract.Structure):
         upper_bound = q3 + 1.5 * iqr
         self.df = self.df[(self.df[self.df.columns[-1]] > lower_bound) & (self.df[self.df.columns[-1]] < upper_bound)]
 
+    @logger_method(logger)
     def polyniminal_model(self):
         pass
 
+    @logger_method(logger)
     def train_test_split_data(self):
         self.X_train, self.X_test, self.y_train, self.y_test \
             = train_test_split(self.X,

@@ -12,7 +12,7 @@ services:
 
   file_handler:
     build:
-      context: app/file_handler
+      context: ./file_handler
       dockerfile: Dockerfile
     ports:
       - "8001:8001"
