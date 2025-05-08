@@ -8,11 +8,18 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - file_handler
+      - prepared_data
 
-  file_handler:
+  prepared_data:
     build:
-      context: ./file_handler
+      context: prepared_data_
       dockerfile: Dockerfile
     ports:
       - "8001:8001"
+
+  predicted_data:
+    build:
+      context: predicted_data_
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
