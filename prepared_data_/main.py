@@ -34,7 +34,8 @@ def prepare_data(
                  degree: int,
                  file: UploadFile = File(...)
                  ) -> dict[str, list[dict[Any, Any]]]:
-
+    """Returns:
+            dict: Подготовленные тренировочная и тестовая выборки."""
     prepared_data = PreparedData(
                                  file,
                                  number_of_x_columns,
@@ -118,18 +119,3 @@ class PreparedData(abstract.Structure):
 
         self.X_train = pd.DataFrame(self.X_train)
         self.X_test = pd.DataFrame(self.X_test)
-
-    def create_grid_model(self):
-        pass
-
-    @staticmethod
-    def fit_model():
-        pass
-
-    @staticmethod
-    def pred_model():
-        pass
-
-    @staticmethod
-    def error_model():
-        pass

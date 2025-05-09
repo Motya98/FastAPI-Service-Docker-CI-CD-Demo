@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 
-def create_logger():
+def create_logger() -> logging.Logger:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 

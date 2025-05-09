@@ -1,6 +1,5 @@
 from typing import Any
 
-import pandas as pd
 from fastapi import FastAPI
 import requests
 
@@ -14,13 +13,13 @@ params = get_params()
 @app.get("/")
 @logger_method(logger)
 def read_root() -> dict[Any, Any]:
-    """Метод управляет контейнером очистки и подготовки данных для обучения;
-       метод управляет контейнером поиска лучших гиперпараметров моделей sklearn;
-       метод управляет контейнером выбора наиболее точной прогнозной модели.
+    """Этот контейнер управляет:
+            Контейнером подготовки данных для обучения;
+            Контейнером обучения ML моделей;
        """
     pod_prepared_data = Pods.call_pod_prepared_data()   # Запуск первого контейнера.
     pod_predicted_data = Pods.call_pod_predicted_data(pod_prepared_data)    # Запуск второго контейнера.
-    return {'X_train': pod_predicted_data['X_train'], 'y_test': pod_prepared_data['y_test']}
+    return pod_predicted_data
 
 
 class Pods:
@@ -28,7 +27,8 @@ class Pods:
     @logger_method(logger)
     def call_pod_prepared_data() -> dict[str, list[dict[str, Any]]]:
         """Контейнер выполняет очистку и подготовку данных для обучения.
-                Returns: dict[str, pd.DataFrame] - X_train, X_test, y_train, y_test"""
+                Returns: dict.
+                    best_params_."""
         with open(params.relative_data_path, 'rb') as file:
             files = {'file': ('data.csv', file, 'text/csv')}
             model_data = requests.post(
@@ -48,6 +48,9 @@ class Pods:
     @staticmethod
     @logger_method(logger)
     def call_pod_predicted_data(pod_prepared_data):
+        """Контейнер обучает ML-модели; подбирает гиперпараметры; выбирает лучшую ML модель.
+                Returns: dict.
+                    X_train, X_test, y_train, y_test."""
         model_data = requests.post(
                                f"http://predicted_data:8002/file_handler/"
                                    f"{params.cv}/"

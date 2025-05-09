@@ -13,7 +13,6 @@ import ml_models
 
 app = FastAPI()
 
-
 @app.post(
           '/file_handler/'
           '{cv}/'
@@ -28,7 +27,9 @@ def predict_data(
                  list_names_models: List[str] = Query(...),
                  pod_prepared_data: dict = Body(...)
                  ) -> dict:
-
+    """Returns:
+            dict: гиперпараметры лучшей ML модели.
+            best_params_."""
     X_train, X_test = pd.DataFrame(pod_prepared_data['X_train']), pd.DataFrame(pod_prepared_data['X_test'])
     y_train, y_test = pd.DataFrame(pod_prepared_data['y_train']), pd.DataFrame(pod_prepared_data['y_test'])
 
@@ -41,10 +42,15 @@ def predict_data(
             models[key]['scoring'] = scoring
             models[key]['X_train'] = X_train
             models[key]['y_train'] = y_train
-    pipeline(logical_cores, models, X_test, y_test, scoring)
-    return {'X_train': pod_prepared_data['X_train']}
 
-def pipeline(logical_cores, models, X_test, y_test, scoring):
+    best_grid_model = search_best_model(logical_cores, models, X_test, y_test, scoring)
+    return {'best_grid_model': best_grid_model.best_params_}
+
+
+@logger_method(logger)
+def search_best_model(logical_cores, models, X_test, y_test, scoring) -> GridSearchCV:
+    """Returns:
+            GridSearchCV: лучшая ML модель."""
     with multiprocessing.Pool(logical_cores) as pool:
         grid_models = pool.map(ModelGridCreator.create_model, models.items())
 
@@ -54,15 +60,16 @@ def pipeline(logical_cores, models, X_test, y_test, scoring):
         y_pred = ModelGridCreator.predict_model(grid_model, X_test)
         metric_value_grid_model = ModelGridCreator.error_model(y_test, y_pred, scoring)
         if metric_value_grid_model < metric_value:
-            metric_value = metric_value_grid_model
             best_grid_model = grid_model
-    logger.info(f'ggggff{best_grid_model}, {metric_value}, {best_grid_model.best_params_}')
+        return best_grid_model
 
 
 class ModelGridCreator:
     @staticmethod
     @logger_method(logger)
-    def create_model(data_model):
+    def create_model(data_model) -> GridSearchCV:
+        """Returns:
+                GridSearchCV: ML модель с гиперпараметрами, определенными в ходе кросс-валидации."""
         grid_model = GridSearchCV(
                                   data_model[1]['model'],
                                   param_grid=data_model[1]['param_grid'],
@@ -73,12 +80,16 @@ class ModelGridCreator:
 
     @staticmethod
     @logger_method(logger)
-    def predict_model(grid_model, X_test):
+    def predict_model(grid_model, X_test) -> pd.DataFrame:
+        """Returns:
+                DataFrame: Результат прогнозирования на тестовой выборке."""
         return grid_model.predict(X_test)
 
     @staticmethod
     @logger_method(logger)
-    def error_model(y_test, y_pred, scoring):
+    def error_model(y_test, y_pred, scoring) -> float:
+        """Returns:
+                float: Ошибка модели."""
         if scoring == 'neg_mean_absolute_error':
             metric_value = mean_absolute_error(y_test, y_pred)
         elif scoring == 'neg_mean_squared_error':
