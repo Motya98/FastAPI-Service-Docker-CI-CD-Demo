@@ -22,6 +22,7 @@ class Parameter(BaseModel):
     degree: int = Field(default=1)
     cv: int = Field(default=5)
     scoring: str = Field(default='neg_root_mean_squared_error')
+    list_names_models: list = Field(default=list)
 
     @field_validator('logical_cores')
     @logger_method(logger)

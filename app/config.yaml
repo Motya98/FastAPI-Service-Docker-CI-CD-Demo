@@ -11,3 +11,9 @@ upper_quantile: 0.75
 degree: 3
 cv: 5
 scoring: 'rmse'
+list_names_models: [
+              'LinearRegression', 'Ridge', 'Lasso', 'Elastic', 'K_Neighbours', 'DecisionTree', 'SVR', 'GradientBoostingRegressor', 'AdaBoostRegressor', 'KernelRidge',
+              'OrthogonalMatchingPursuit', 'ARDRegression', 'BayesianRidge', 'QuantileRegressor',
+              'TheilSenRegressor', 'GammaRegressor', 'TweedieRegressor', 'PassiveAggressiveRegressor', 'RadiusNeighborsRegressor',
+              'BaggingRegressor', 'ExtraTreesRegressor', 'HistGradientBoostingRegressor'
+              ]
