@@ -8,10 +8,11 @@ random_seed: 42
 test_size: 0.2
 lower_quantile: 0.25
 upper_quantile: 0.75
-degree: 3
+degree: 2
 cv: 5
 scoring: 'rmse'
-list_names_models: [
+list_names_models: ['GradientBoostingRegressor', 'AdaBoostRegressor']
+list_names_models_source: [
               'LinearRegression', 'Ridge', 'Lasso', 'Elastic', 'K_Neighbours', 'DecisionTree', 'SVR', 'GradientBoostingRegressor', 'AdaBoostRegressor', 'KernelRidge',
               'OrthogonalMatchingPursuit', 'ARDRegression', 'BayesianRidge', 'QuantileRegressor',
               'TheilSenRegressor', 'GammaRegressor', 'TweedieRegressor', 'PassiveAggressiveRegressor', 'RadiusNeighborsRegressor',

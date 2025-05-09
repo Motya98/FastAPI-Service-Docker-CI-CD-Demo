@@ -182,4 +182,4 @@ class Models:
 
 
 if __name__ == '__main__':
-    print(Models.models)
+    print(dict(Models.models.items()))

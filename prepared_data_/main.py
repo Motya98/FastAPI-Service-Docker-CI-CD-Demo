@@ -48,7 +48,8 @@ def prepare_data(
                                  )
     prepared_data.preprocess_data()
     prepared_data.train_test_split_data()
-    prepared_data.polynomial_model()
+    if degree != 1:
+        prepared_data.polynomial_model()
     prepared_data.standartization_data()
     return {
             "X_train": prepared_data.X_train.to_dict('records'),
