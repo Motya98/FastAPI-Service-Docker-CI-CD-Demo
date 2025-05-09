@@ -4,13 +4,12 @@ import pandas as pd
 from fastapi import FastAPI
 import requests
 
-from yaml_ import CRUDYaml
-from parameters import Parameter
 from decorators import logger_method
-from variables import logger
+from variables import logger, get_params
 
 
 app = FastAPI()
+params = get_params()
 
 @app.get("/")
 @logger_method(logger)
@@ -29,7 +28,6 @@ class Pods:
     def call_pod_prepared_data() -> dict[str, list[dict[str, Any]]]:
         """Контейнер выполняет очистку и подготовку данных для обучения.
                 Returns: dict[str, pd.DataFrame] - X_train, X_test, y_train, y_test"""
-        params = Parameter(**CRUDYaml.read('config.yaml'))
         with open('data/data.csv', 'rb') as file:
             files = {'file': ('data.csv', file, 'text/csv')}
             model_data = requests.post(
@@ -44,15 +42,14 @@ class Pods:
                                        f"{params.degree}/",
                                        files=files
                                        )
-        result_model_data = model_data.json()
-        X_train, X_test = result_model_data['X_train'], result_model_data['X_test']
-        y_train, y_test = result_model_data['y_train'], result_model_data['y_test']
-        return {'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test}
+        return model_data.json()    # X_train, X_test, y_train, y_test
 
     @staticmethod
     def call_pod_predicted_data(pod_prepared_data):
         model_data = requests.post(
-                               f"http://predicted_data:8002/file_handler/",
+                               f"http://predicted_data:8002/file_handler/"
+                                   f"{params.cv}/"
+                                   f"{params.scoring}/",
                                    json=pod_prepared_data
                                    )
         return model_data.json()

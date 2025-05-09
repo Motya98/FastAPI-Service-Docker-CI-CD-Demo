@@ -12,7 +12,13 @@ from variables import logger
 app = FastAPI()
 
 
-@app.post('/file_handler/')
+@app.post('/file_handler/'
+          '{cv}/'
+          '{scoring}/')
 @logger_method(logger)
-def prepare_data(pod_prepared_data: dict[Any, Any]):
+def prepare_data(cv,
+                 scoring,
+                 pod_prepared_data: dict[Any, Any]):
+    X_train, X_test = pod_prepared_data['X_train'], pod_prepared_data['X_test']
+    y_train, y_test = pod_prepared_data['y_train'], pod_prepared_data['y_test']
     return {'X_train': pod_prepared_data['X_train']}

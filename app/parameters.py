@@ -20,6 +20,8 @@ class Parameter(BaseModel):
     lower_quantile: float = Field(default=0.25)
     upper_quantile: float = Field(default=0.75)
     degree: int = Field(default=1)
+    cv: int = Field(default=5)
+    scoring: str = Field(default='neg_root_mean_squared_error')
 
     @field_validator('logical_cores')
     @logger_method(logger)
@@ -34,3 +36,13 @@ class Parameter(BaseModel):
             data.to_csv(Path(__file__).parent / 'data/data.csv')
             return str(Path(__file__).parent / 'data/data.csv')
         return value
+
+    @field_validator('scoring')
+    @logger_method(logger)
+    def validate_scoring(cls, value) -> str:
+        if value == 'mae':
+            return 'neg_mean_absolute_error'
+        elif value == 'mse':
+            return 'neg_mean_squared_error'
+        elif value == 'rmse':
+            return 'neg_root_mean_squared_error'

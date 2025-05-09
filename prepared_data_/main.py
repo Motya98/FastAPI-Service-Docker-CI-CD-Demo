@@ -10,6 +10,7 @@ from decorators import logger_method
 from variables import logger
 
 app = FastAPI()
+
 @app.post(
           '/file_handler/'
           '{number_of_x_columns}/'
@@ -19,7 +20,7 @@ app = FastAPI()
           '{logical_cores}/'
           '{lower_quantile}/'
           '{upper_quantile}/'
-          '{degree}'
+          '{degree}/'
            )
 @logger_method(logger)
 def prepare_data(
