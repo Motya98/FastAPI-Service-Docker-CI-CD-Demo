@@ -24,12 +24,13 @@ def read_root() -> dict[Any, Any]:
 
 
 class Pods:
+    """Содержит методы вызова контейнеров."""
     @staticmethod
     @logger_method(logger)
     def call_pod_prepared_data() -> dict[str, list[dict[str, Any]]]:
         """Контейнер выполняет очистку и подготовку данных для обучения.
                 Returns: dict.
-                    best_params_."""
+                    X_train, X_test, y_train, y_test."""
         with open(params.relative_data_path, 'rb') as file:
             files = {'file': ('data.csv', file, 'text/csv')}
             model_data = requests.post(
@@ -48,10 +49,10 @@ class Pods:
 
     @staticmethod
     @logger_method(logger)
-    def call_pod_predicted_data(pod_prepared_data):
+    def call_pod_predicted_data(pod_prepared_data) -> dict:
         """Контейнер обучает ML-модели; подбирает гиперпараметры; выбирает лучшую ML модель.
                 Returns: dict.
-                    X_train, X_test, y_train, y_test."""
+                    best_params_."""
         model_data = requests.post(
                                f"http://predicted_data:8002/file_handler/"
                                    f"{params.cv}/"
