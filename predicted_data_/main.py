@@ -9,6 +9,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from decorators import logger_method
 from variables import logger
+import abstract_frame
 import ml_models
 
 
@@ -41,7 +42,7 @@ def predict_data(
     return {'best_grid_model': best_grid_model.best_params_}
 
 
-class ModelGridCreator:
+class ModelGridCreator(abstract_frame.StructurePredict):
     """Класс содержит методы стандартрного пайплайна работы с ML моделью."""
     @staticmethod
     @logger_method(logger)

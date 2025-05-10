@@ -1,7 +1,7 @@
 import abc
 
 
-class Structure(abc.ABC):
+class StructurePrepare(abc.ABC):
     @abc.abstractmethod
     def preprocess_data(self):
         pass

@@ -1,4 +1,3 @@
-import abstract
 from typing import Any
 
 from fastapi import FastAPI, File, UploadFile
@@ -8,6 +7,7 @@ import pandas as pd
 
 from decorators import logger_method
 from variables import logger
+import abstract_frame
 
 
 app = FastAPI()
@@ -62,7 +62,7 @@ def prepare_data(
             }
 
 
-class PreparedData(abstract.Structure):
+class PreparedData(abstract_frame.StructurePrepare):
     """Методы класса подготавливают данные (очистка -> разбиение -> полиномизация -> стандартизация)
        для дальнейших этапов обучения."""
     @logger_method(logger)
