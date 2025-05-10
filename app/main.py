@@ -10,10 +10,11 @@ from variables import logger, get_params
 app = FastAPI()
 params = get_params()
 
+
 @app.get("/")
 @logger_method(logger)
 def read_root() -> dict[Any, Any]:
-    """Этот контейнер управляет:
+    """Контейнер управляет:
             Контейнером подготовки данных для обучения;
             Контейнером обучения ML моделей;
        """
