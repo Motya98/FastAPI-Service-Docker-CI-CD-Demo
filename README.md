@@ -39,7 +39,7 @@
 
 ### Продакшен-сборка
 ```bash
-docker-compose -f docker-compose.prod.yml up --build
+docker-compose docker-compose up --build
 ```
 Обращайтесь к сервису по адресу http://localhost:8000/
 
