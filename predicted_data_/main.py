@@ -11,6 +11,7 @@ from decorators import logger_method
 from variables import logger
 import ml_models
 
+
 app = FastAPI()
 
 

@@ -9,6 +9,7 @@ import pandas as pd
 from decorators import logger_method
 from variables import logger
 
+
 app = FastAPI()
 
 
